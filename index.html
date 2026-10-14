@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram-Planer – Holzwerk Berger</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== Kopfbereich mit Firmenname und Navigation ===== -->
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🪚</span>
+      <div>
+        <h1>Holzwerk Berger</h1>
+        <p>Instagram-Planer · Testversion (keine echte Veröffentlichung)</p>
+      </div>
+    </div>
+    <nav>
+      <button data-tab="uebersicht" class="aktiv">📋 Übersicht</button>
+      <button data-tab="texte">✍️ Werbetexte</button>
+      <button data-tab="vorschau">📱 Vorschau</button>
+      <button data-tab="kalender">📅 Kalender</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ===== 1. Übersicht geplanter Beiträge ===== -->
+    <section id="uebersicht" class="tab">
+      <div class="kopfzeile">
+        <h2>Geplante Beiträge</h2>
+        <div>
+          <button id="btn-zuruecksetzen" class="zweitrangig">Beispieldaten laden</button>
+          <button id="btn-neuer-beitrag">+ Neuer Beitrag</button>
+        </div>
+      </div>
+
+      <div class="hinweis">
+        🧪 <strong>Testmodus:</strong> Beiträge mit Status „Geplant“ werden automatisch zum geplanten
+        Zeitpunkt als „Veröffentlicht (Test)“ markiert. Es wird <strong>nichts</strong> an Instagram gesendet.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Uhrzeit</th>
+            <th>Titel</th>
+            <th>Status</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="beitrags-liste"></tbody>
+      </table>
+      <p id="leer-hinweis" class="leer" hidden>Noch keine Beiträge. Lege mit „+ Neuer Beitrag“ los!</p>
+
+      <h3>Protokoll der Automatisierung</h3>
+      <ul id="protokoll" class="protokoll"></ul>
+    </section>
+
+    <!-- ===== 2. Werbetexte erstellen ===== -->
+    <section id="texte" class="tab" hidden>
+      <h2>Werbetext erstellen</h2>
+      <p class="untertitel">Wähle ein paar Angaben – die Seite baut daraus einen Vorschlag aus Textbausteinen.</p>
+
+      <div class="zwei-spalten">
+        <form id="text-generator" class="karte">
+          <label>Anlass
+            <select id="gen-anlass">
+              <option value="projekt">Fertiges Projekt zeigen</option>
+              <option value="angebot">Angebot / Aktion</option>
+              <option value="tipp">Tipp vom Profi</option>
+              <option value="team">Team & Ausbildung</option>
+              <option value="saison">Saison / Jahreszeit</option>
+            </select>
+          </label>
+
+          <label>Leistung oder Produkt
+            <input id="gen-leistung" type="text" value="Einbauküche aus Eiche">
+          </label>
+
+          <label>Ort
+            <input id="gen-ort" type="text" value="Musterstadt">
+          </label>
+
+          <label>Besonderheit (optional)
+            <input id="gen-besonderheit" type="text" placeholder="z. B. 10 % Rabatt bis Ende Mai">
+          </label>
+
+          <label>Tonfall
+            <select id="gen-ton">
+              <option value="freundlich">Freundlich</option>
+              <option value="professionell">Professionell</option>
+              <option value="locker">Locker</option>
+            </select>
+          </label>
+
+          <button type="submit">✨ Text erzeugen</button>
+        </form>
+
+        <div class="karte">
+          <label>Ergebnis (du kannst den Text noch bearbeiten)
+            <textarea id="gen-text" rows="10"></textarea>
+          </label>
+          <p class="zaehler"><span id="gen-zeichen">0</span> / 2200 Zeichen (Instagram-Grenze)</p>
+
+          <label>Hashtags
+            <input id="gen-hashtags" type="text">
+          </label>
+          <p class="zaehler"><span id="gen-hashtag-anzahl">0</span> / 30 Hashtags (Instagram-Grenze)</p>
+
+          <div class="knopfreihe">
+            <button id="btn-kopieren" type="button" class="zweitrangig">📋 Kopieren</button>
+            <button id="btn-uebernehmen" type="button">➕ Als Beitrag einplanen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 3. Vorschau eines Instagram-Beitrags ===== -->
+    <section id="vorschau" class="tab" hidden>
+      <h2>Vorschau</h2>
+      <label class="auswahl">Beitrag auswählen
+        <select id="vorschau-auswahl"></select>
+      </label>
+      <div id="vorschau-bereich"></div>
+    </section>
+
+    <!-- ===== 4. Kalender ===== -->
+    <section id="kalender" class="tab" hidden>
+      <div class="kopfzeile">
+        <button id="monat-zurueck" class="zweitrangig">‹</button>
+        <h2 id="monat-titel"></h2>
+        <button id="monat-vor" class="zweitrangig">›</button>
+      </div>
+      <p class="untertitel">Klicke auf einen Tag, um dort einen Beitrag anzulegen – oder auf einen Beitrag für die Vorschau.</p>
+      <div id="kalender-raster" class="kalender-raster"></div>
+    </section>
+
+  </main>
+
+  <!-- ===== Formular-Fenster zum Anlegen/Bearbeiten (öffnet sich als Pop-up) ===== -->
+  <dialog id="beitrag-dialog">
+    <form id="beitrag-formular">
+      <h2 id="dialog-titel">Neuer Beitrag</h2>
+      <input type="hidden" id="feld-id">
+
+      <label>Titel (nur intern, erscheint nicht auf Instagram)
+        <input id="feld-titel" type="text" required>
+      </label>
+
+      <div class="zwei-spalten">
+        <label>Datum
+          <input id="feld-datum" type="date" required>
+        </label>
+        <label>Uhrzeit
+          <input id="feld-uhrzeit" type="time" value="18:00" required>
+        </label>
+      </div>
+
+      <label>Text
+        <textarea id="feld-text" rows="6" maxlength="2200"></textarea>
+      </label>
+
+      <label>Hashtags
+        <input id="feld-hashtags" type="text" placeholder="#handwerk #tischlerei">
+      </label>
+
+      <label>Bild (optional)
+        <input id="feld-bild" type="file" accept="image/*">
+      </label>
+      <img id="feld-bild-vorschau" class="mini-bild" alt="" hidden>
+
+      <label>Status
+        <select id="feld-status">
+          <option value="entwurf">Entwurf</option>
+          <option value="geplant">Geplant</option>
+          <option value="veroeffentlicht">Veröffentlicht (Test)</option>
+        </select>
+      </label>
+
+      <div class="knopfreihe">
+        <button type="button" id="btn-abbrechen" class="zweitrangig">Abbrechen</button>
+        <button type="submit">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
